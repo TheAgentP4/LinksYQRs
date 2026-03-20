@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Acortador + QR</title>
+    <style>
+        body {
+            font-family: Arial;
+            text-align: center;
+            background: #f4f4f4;
+        }
+        .box {
+            background: white;
+            padding: 20px;
+            margin: 50px auto;
+            width: 300px;
+            border-radius: 10px;
+        }
+        input, select, button {
+            width: 90%;
+            margin: 10px;
+            padding: 8px;
+        }
+        button {
+            background: #007BFF;
+            color: white;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="box">
+    <h2>Acortador + QR</h2>
+    <form method="post">
+        <input name="url" placeholder="Link" required>
+
+        <select name="opcion" required>
+            <option value="qr">Solo QR</option>
+            <option value="short">Solo acortar</option>
+            <option value="ambas">Ambas</option>
+        </select>
+
+        <input name="alias" placeholder="Alias (opcional)">
+        <button type="submit">Generar</button>
+    </form>
+</div>
+
+</body>
+</html>

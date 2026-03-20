@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Resultado</title>
+</head>
+<body style="text-align:center; font-family:Arial">
+
+<h2>Resultado</h2>
+
+{% if short_url %}
+<p>Link corto:</p>
+<a href="{{short_url}}" target="_blank">{{short_url}}</a>
+{% endif %}
+
+{% if qr %}
+<p>QR:</p>
+<img src="{{qr}}">
+{% endif %}
+
+<br><br>
+<a href="/">Volver</a>
+
+</body>
+</html>

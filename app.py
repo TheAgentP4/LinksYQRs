@@ -1,4 +1,4 @@
-from flask import Flask, request, redirect, render_template_string, send_file
+from flask import Flask, request, redirect, render_template, send_file
 import json
 import os
 import qrcode
@@ -35,12 +35,7 @@ def home():
 
         # SOLO QR
         if opcion == "qr":
-            return render_template_string("""
-                <h2>QR generado:</h2>
-                <img src="/qr_directo?data={{link}}">
-                <br><br>
-                <a href="/">Volver</a>
-            """, link=link)
+            return render_template("resultado.html", short_url=None, qr="/qr_directo?data=" + link)
 
         # SOLO ACORTAR
         if opcion == "short":
@@ -57,12 +52,7 @@ def home():
 
             short_url = request.host_url + alias
 
-            return f"""
-            <h2>Link corto:</h2>
-            <a href="{short_url}" target="_blank">{short_url}</a>
-            <br><br>
-            <a href="/">Volver</a>
-            """
+            return render_template("resultado.html", short_url=short_url, qr=None)
 
         # AMBAS
         if opcion == "ambas":
@@ -79,32 +69,9 @@ def home():
 
             short_url = request.host_url + alias
 
-            return render_template_string("""
-                <h2>Link corto:</h2>
-                <a href="{{short_url}}" target="_blank">{{short_url}}</a>
-                <br><br>
-                <h2>QR generado:</h2>
-                <img src="/qr/{{alias}}">
-                <br><br>
-                <a href="/">Volver</a>
-            """, short_url=short_url, alias=alias)
+            return render_template("resultado.html", short_url=short_url, qr="/qr/" + alias)
 
-    return '''
-    <h2>Herramienta de Links</h2>
-    <form method="post">
-        <input name="url" placeholder="Link" required><br><br>
-
-        <select name="opcion" required>
-            <option value="qr">Solo QR</option>
-            <option value="short">Solo acortar</option>
-            <option value="ambas">Ambas</option>
-        </select><br><br>
-
-        <input name="alias" placeholder="Alias (solo para acortar)"><br><br>
-
-        <button type="submit">Continuar</button>
-    </form>
-    '''
+    return render_template("index.html")
 
 # Redirección
 @app.route("/<alias>")
@@ -144,7 +111,7 @@ def qr_directo():
 
     return send_file(buffer, mimetype="image/png")
 
-# Ejecutar app (local y Render)
+# Ejecutar app (local y producción)
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
     app.run(host="0.0.0.0", port=port)
