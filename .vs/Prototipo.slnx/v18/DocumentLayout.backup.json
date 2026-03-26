@@ -1,0 +1,37 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\yeyoc\\OneDrive\\Documentos\\Repositorios\\Prototipo\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{38E0BFEF-B66D-4863-9F57-1331FC651F08}|Prototipo.pyproj|C:\\Users\\yeyoc\\OneDrive\\Documentos\\Repositorios\\Prototipo\\Prototipo.py||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{38E0BFEF-B66D-4863-9F57-1331FC651F08}|Prototipo.pyproj|solutionrelative:Prototipo.py||{8B382828-6202-11D1-8870-0000F87579D2}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Prototipo.py",
+              "DocumentMoniker": "C:\\Users\\yeyoc\\OneDrive\\Documentos\\Repositorios\\Prototipo\\Prototipo.py",
+              "RelativeDocumentMoniker": "Prototipo.py",
+              "ToolTip": "C:\\Users\\yeyoc\\OneDrive\\Documentos\\Repositorios\\Prototipo\\Prototipo.py",
+              "RelativeToolTip": "Prototipo.py",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAATAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-03-19T21:28:32.4Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
