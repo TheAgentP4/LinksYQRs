@@ -1,24 +1,281 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-    <title>Resultado</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resultado - Acortador + QR</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+
+        .status-icon {
+            font-size: 48px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+            padding-bottom: 30px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #666;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+            letter-spacing: 0.5px;
+        }
+
+        .url-box {
+            background: #f5f5f5;
+            padding: 12px 15px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            word-break: break-all;
+        }
+
+        .url-text {
+            color: #667eea;
+            font-weight: 600;
+            flex: 1;
+            font-size: 14px;
+        }
+
+        .copy-btn {
+            padding: 8px 12px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .copy-btn:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+        }
+
+        .copy-btn.copied {
+            background: #48bb78;
+        }
+
+        .qr-container {
+            text-align: center;
+        }
+
+        .qr-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #764ba2;
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #f0f0f0;
+        }
+
+        .download-btn {
+            margin-top: 10px;
+            padding: 10px;
+            background: #48bb78;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .download-btn:hover {
+            background: #38a169;
+        }
+
+        .tooltip {
+            display: none;
+            position: absolute;
+            background: #333;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            margin-top: -35px;
+            white-space: nowrap;
+            z-index: 10;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 30px 20px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .url-box {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .copy-btn {
+                width: 100%;
+            }
+        }
+    </style>
 </head>
-<body style="text-align:center; font-family:Arial">
+<body>
 
-<h2>Resultado</h2>
+<div class="container">
+    <div class="status-icon">✅</div>
+    <h1>¡Listo!</h1>
 
-{% if short_url %}
-<p>Link corto:</p>
-<a href="{{short_url}}" target="_blank">{{short_url}}</a>
-{% endif %}
+    {% if short_url %}
+    <div class="section">
+        <div class="section-title">📎 URL Corta</div>
+        <div class="url-box">
+            <span class="url-text">{{ short_url }}</span>
+            <button class="copy-btn" onclick="copiar('{{ short_url }}', this)">
+                📋 Copiar
+            </button>
+        </div>
+    </div>
+    {% endif %}
 
-{% if qr %}
-<p>QR:</p>
-<img src="{{qr}}">
-{% endif %}
+    {% if qr %}
+    <div class="section">
+        <div class="section-title">🔲 Código QR</div>
+        <div class="qr-container">
+            <img src="{{ qr }}" alt="Código QR" id="qrImage">
+        </div>
+        <button class="download-btn" onclick="descargarQR()">
+            ⬇️ Descargar QR
+        </button>
+    </div>
+    {% endif %}
 
-<br><br>
-<a href="/">Volver</a>
+    <div class="action-buttons">
+        <a href="/" class="btn btn-secondary">
+            ← Atrás
+        </a>
+        <a href="/" class="btn btn-primary">
+            ✨ Crear Otro
+        </a>
+    </div>
+</div>
+
+<script>
+    function copiar(texto, btn) {
+        navigator.clipboard.writeText(texto).then(() => {
+            const textoOriginal = btn.textContent;
+            btn.textContent = '✓ Copiado';
+            btn.classList.add('copied');
+            
+            setTimeout(() => {
+                btn.textContent = textoOriginal;
+                btn.classList.remove('copied');
+            }, 2000);
+        }).catch(err => {
+            alert('Error al copiar');
+        });
+    }
+
+    function descargarQR() {
+        const qrImage = document.getElementById('qrImage');
+        const enlace = document.createElement('a');
+        enlace.href = qrImage.src;
+        enlace.download = 'codigo-qr.png';
+        document.body.appendChild(enlace);
+        enlace.click();
+        document.body.removeChild(enlace);
+    }
+</script>
 
 </body>
 </html>

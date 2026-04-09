@@ -1,47 +1,215 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Acortador + QR</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: Arial;
-            text-align: center;
-            background: #f4f4f4;
-        }
-        .box {
-            background: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             padding: 20px;
-            margin: 50px auto;
-            width: 300px;
-            border-radius: 10px;
         }
-        input, select, button {
-            width: 90%;
-            margin: 10px;
-            padding: 8px;
+
+        .container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
         }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        input::placeholder {
+            color: #999;
+        }
+
         button {
-            background: #007BFF;
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .alert {
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .alert-error {
+            background-color: #fee;
+            color: #c33;
+            border: 2px solid #fcc;
+        }
+
+        .alert-info {
+            background-color: #eef;
+            color: #33c;
+            border: 2px solid #ccf;
+        }
+
+        .alert-icon {
+            font-size: 18px;
+        }
+
+        select {
+            cursor: pointer;
+        }
+
+        .help-text {
+            font-size: 12px;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 30px 20px;
+                border-radius: 10px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            input, select, button {
+                font-size: 16px;
+                padding: 12px;
+            }
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        @media (max-width: 500px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
 
-<div class="box">
-    <h2>Acortador + QR</h2>
+<div class="container">
+    <h1>🔗 Acortador + QR</h1>
+    <p class="subtitle">Crea URLs cortas y códigos QR al instante</p>
+
+    {% if error %}
+    <div class="alert alert-error">
+        <span class="alert-icon">⚠️</span>
+        <span>{{ error }}</span>
+    </div>
+    {% endif %}
+
     <form method="post">
-        <input name="url" placeholder="Link" required>
+        <div class="form-group">
+            <label for="url">URL a procesar *</label>
+            <input 
+                type="text" 
+                id="url" 
+                name="url" 
+                placeholder="https://ejemplo.com"
+                required>
+            <div class="help-text">Incluye http:// o https://</div>
+        </div>
 
-        <select name="opcion" required>
-            <option value="qr">Solo QR</option>
-            <option value="short">Solo acortar</option>
-            <option value="ambas">Ambas</option>
-        </select>
+        <div class="form-group">
+            <label for="opcion">Tipo de generación *</label>
+            <select id="opcion" name="opcion" required>
+                <option value="qr">Solo QR</option>
+                <option value="short">Solo acortar</option>
+                <option value="ambas" selected>Ambas (QR + URL corta)</option>
+            </select>
+        </div>
 
-        <input name="alias" placeholder="Alias (opcional)">
-        <button type="submit">Generar</button>
+        <div class="form-group">
+            <label for="alias">Alias personalizado</label>
+            <input 
+                type="text" 
+                id="alias" 
+                name="alias" 
+                placeholder="mi-proyecto"
+                maxlength="30">
+            <div class="help-text">Letras, números, guiones (requerido si usas acortador)</div>
+        </div>
+
+        <button type="submit">✨ Generar</button>
     </form>
 </div>
 
