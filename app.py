@@ -8,7 +8,9 @@ import os
 import logging
 import re
 from io import BytesIO
-from datetime import datetime
+from datetime import datetime, UTC
+from urllib.parse import quote_plus
+from PIL import Image, ImageDraw
 
 # Configuración
 app = Flask(__name__)
@@ -31,7 +33,7 @@ class Link(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     alias = db.Column(db.String(50), unique=True, nullable=False, index=True)
     url = db.Column(db.String(500), nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
     clicks = db.Column(db.Integer, default=0)
 
     def to_dict(self):
@@ -74,6 +76,70 @@ def sanitizar_alias(alias):
     
     return alias, None
 
+
+def sanitizar_color(color, default="#000000"):
+    """Valida y normaliza colores hex para el QR."""
+    if not color:
+        return default
+    color = color.strip()
+    if not color.startswith("#"):
+        color = f"#{color}"
+    if re.match(r"^#[0-9a-fA-F]{6}$", color):
+        return color.lower()
+    return default
+
+
+def sanitizar_icono(icono):
+    """Limita los tipos de icono permitidos para evitar valores inesperados."""
+    iconos_validos = {"none", "dot", "square", "diamond"}
+    if icono in iconos_validos:
+        return icono
+    return "none"
+
+
+def generar_qr_personalizado(data, fill_color, back_color, icono):
+    """Genera un QR con colores personalizados y un icono simple al centro."""
+    qr = qrcode.QRCode(
+        version=1,
+        error_correction=qrcode.constants.ERROR_CORRECT_H,
+        box_size=10,
+        border=4,
+    )
+    qr.add_data(data)
+    qr.make(fit=True)
+
+    img = qr.make_image(fill_color=fill_color, back_color=back_color).convert("RGB")
+
+    if icono != "none":
+        draw = ImageDraw.Draw(img)
+        w, h = img.size
+        size = int(min(w, h) * 0.18)
+        left = (w - size) // 2
+        top = (h - size) // 2
+        right = left + size
+        bottom = top + size
+
+        # Fondo blanco para mejorar legibilidad del icono sin romper el QR.
+        pad = 8
+        draw.rounded_rectangle(
+            [left - pad, top - pad, right + pad, bottom + pad],
+            radius=12,
+            fill="white",
+            outline="white",
+        )
+
+        if icono == "dot":
+            draw.ellipse([left, top, right, bottom], fill=fill_color)
+        elif icono == "square":
+            draw.rectangle([left, top, right, bottom], fill=fill_color)
+        elif icono == "diamond":
+            cx = (left + right) // 2
+            cy = (top + bottom) // 2
+            points = [(cx, top), (right, cy), (cx, bottom), (left, cy)]
+            draw.polygon(points, fill=fill_color)
+
+    return img
+
 # Rutas
 @app.route("/", methods=["GET", "POST"])
 @limiter.limit("30 per minute")
@@ -82,6 +148,9 @@ def home():
     if request.method == "POST":
         opcion = request.form.get("opcion", "").strip()
         url = request.form.get("url", "").strip()
+        fill_color = sanitizar_color(request.form.get("fill_color"), default="#000000")
+        back_color = sanitizar_color(request.form.get("back_color"), default="#ffffff")
+        icono = sanitizar_icono(request.form.get("icono", "none"))
         
         # Validar URL
         es_valida, error = validar_url(url)
@@ -90,9 +159,18 @@ def home():
         
         # SOLO QR
         if opcion == "qr":
-            return render_template("resultado.html", 
-                                 short_url=None, 
-                                 qr=f"/qr_directo?data={url}")
+            qr_url = (
+                f"/qr_directo?data={quote_plus(url)}"
+                f"&fill={quote_plus(fill_color)}"
+                f"&back={quote_plus(back_color)}"
+                f"&icon={quote_plus(icono)}"
+            )
+            return render_template(
+                "resultado.html",
+                short_url=None,
+                qr=qr_url,
+                qr_options={"fill": fill_color, "back": back_color, "icono": icono},
+            )
         
         # SOLO ACORTAR o AMBAS
         if opcion in ["short", "ambas"]:
@@ -120,14 +198,31 @@ def home():
                                      short_url=short_url, 
                                      qr=None)
             else:  # ambas
-                return render_template("resultado.html", 
-                                     short_url=short_url, 
-                                     qr=f"/qr/{alias_clean}")
+                qr_url = (
+                    f"/qr/{quote_plus(alias_clean)}"
+                    f"?fill={quote_plus(fill_color)}"
+                    f"&back={quote_plus(back_color)}"
+                    f"&icon={quote_plus(icono)}"
+                )
+                return render_template(
+                    "resultado.html",
+                    short_url=short_url,
+                    qr=qr_url,
+                    qr_options={"fill": fill_color, "back": back_color, "icono": icono},
+                )
         
         return render_template("index.html", 
                              error="Opción no válida"), 400
     
     return render_template("index.html")
+
+
+@app.route("/db")
+@limiter.limit("30 per minute")
+def ver_db():
+    """Vista simple para inspeccionar enlaces guardados."""
+    links = Link.query.order_by(Link.created_at.desc()).all()
+    return render_template("db.html", links=links)
 
 @app.route("/<alias>")
 @limiter.limit("1000 per hour")
@@ -156,7 +251,10 @@ def qr_alias(alias):
         return jsonify({"error": "Alias no encontrado"}), 404
     
     short_url = request.host_url + alias
-    img = qrcode.make(short_url)
+    fill_color = sanitizar_color(request.args.get("fill"), default="#000000")
+    back_color = sanitizar_color(request.args.get("back"), default="#ffffff")
+    icono = sanitizar_icono(request.args.get("icon", "none"))
+    img = generar_qr_personalizado(short_url, fill_color, back_color, icono)
     
     buffer = BytesIO()
     img.save(buffer, format="PNG")
@@ -177,7 +275,10 @@ def qr_directo():
     if not es_valida:
         return jsonify({"error": error}), 400
     
-    img = qrcode.make(data)
+    fill_color = sanitizar_color(request.args.get("fill"), default="#000000")
+    back_color = sanitizar_color(request.args.get("back"), default="#ffffff")
+    icono = sanitizar_icono(request.args.get("icon", "none"))
+    img = generar_qr_personalizado(data, fill_color, back_color, icono)
     
     buffer = BytesIO()
     img.save(buffer, format="PNG")

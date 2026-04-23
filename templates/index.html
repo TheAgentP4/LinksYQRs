@@ -135,6 +135,34 @@
             margin-top: 5px;
         }
 
+        .custom-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .color-input {
+            padding: 4px;
+            height: 44px;
+        }
+
+        .top-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 14px;
+        }
+
+        .db-link {
+            text-decoration: none;
+            background: #eaf1ff;
+            color: #2f4fa3;
+            border: 1px solid #cad9ff;
+            border-radius: 999px;
+            padding: 8px 12px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
         @media (max-width: 600px) {
             .container {
                 padding: 30px 20px;
@@ -161,12 +189,19 @@
             .form-row {
                 grid-template-columns: 1fr;
             }
+
+            .custom-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
 
 <div class="container">
+    <div class="top-actions">
+        <a class="db-link" href="/db">Ver base de datos</a>
+    </div>
     <h1>🔗 Acortador + QR</h1>
     <p class="subtitle">Crea URLs cortas y códigos QR al instante</p>
 
@@ -207,6 +242,31 @@
                 placeholder="mi-proyecto"
                 maxlength="30">
             <div class="help-text">Letras, números, guiones (requerido si usas acortador)</div>
+        </div>
+
+        <div class="form-group">
+            <label>Personalización de QR</label>
+            <div class="custom-grid">
+                <div>
+                    <label for="fill_color">Color QR</label>
+                    <input class="color-input" type="color" id="fill_color" name="fill_color" value="#000000">
+                </div>
+                <div>
+                    <label for="back_color">Fondo</label>
+                    <input class="color-input" type="color" id="back_color" name="back_color" value="#ffffff">
+                </div>
+            </div>
+            <div class="help-text">Se aplica cuando generas QR (solo QR o ambas).</div>
+        </div>
+
+        <div class="form-group">
+            <label for="icono">Icono central</label>
+            <select id="icono" name="icono">
+                <option value="none" selected>Sin icono</option>
+                <option value="dot">Círculo</option>
+                <option value="square">Cuadrado</option>
+                <option value="diamond">Diamante</option>
+            </select>
         </div>
 
         <button type="submit">✨ Generar</button>

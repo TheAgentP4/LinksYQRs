@@ -173,6 +173,16 @@
             background: #38a169;
         }
 
+        .meta-box {
+            margin-top: 12px;
+            padding: 10px;
+            background: #f8faff;
+            border: 1px solid #dbe7ff;
+            border-radius: 8px;
+            font-size: 12px;
+            color: #415a99;
+        }
+
         .tooltip {
             display: none;
             position: absolute;
@@ -234,6 +244,11 @@
         <div class="qr-container">
             <img src="{{ qr }}" alt="Código QR" id="qrImage">
         </div>
+        {% if qr_options %}
+        <div class="meta-box">
+            Color: {{ qr_options.fill }} | Fondo: {{ qr_options.back }} | Icono: {{ qr_options.icono }}
+        </div>
+        {% endif %}
         <button class="download-btn" onclick="descargarQR()">
             ⬇️ Descargar QR
         </button>

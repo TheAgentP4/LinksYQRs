@@ -1,7 +1,5 @@
 import pytest
 import json
-import os
-from io import BytesIO
 from app import app, db, Link, validar_url, sanitizar_alias
 
 @pytest.fixture
@@ -270,6 +268,28 @@ class TestRutasQR:
         """Retorna error para URL inválida"""
         response = client.get("/qr_directo?data=no-es-valida")
         assert response.status_code == 400
+
+    def test_qr_directo_personalizado(self, client):
+        """Genera QR personalizado con color e icono"""
+        response = client.get(
+            "/qr_directo?data=https://ejemplo.com&fill=%230053ff&back=%23fefefe&icon=diamond"
+        )
+        assert response.status_code == 200
+        assert response.content_type == "image/png"
+
+
+class TestVistaDB:
+    """Pruebas para la vista de base de datos"""
+
+    def test_db_view_disponible(self, client, app_context):
+        """La página de base de datos responde correctamente"""
+        link = Link(alias="base", url="https://ejemplo.com", clicks=2)
+        db.session.add(link)
+        db.session.commit()
+
+        response = client.get("/db")
+        assert response.status_code == 200
+        assert b"base" in response.data
 
 class TestAPILinks:
     """Pruebas para API de links"""

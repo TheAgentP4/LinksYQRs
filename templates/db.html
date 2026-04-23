@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Base de datos - Acortador + QR</title>
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f4f8ff 0%, #edf0ff 100%);
+            color: #283142;
+            padding: 24px;
+        }
+
+        .wrap {
+            max-width: 980px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 14px 34px rgba(17, 36, 90, 0.12);
+            overflow: hidden;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 22px;
+            background: #1e3a8a;
+            color: #fff;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 20px;
+        }
+
+        .back {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 600;
+            border: 1px solid rgba(255, 255, 255, 0.45);
+            border-radius: 8px;
+            padding: 8px 12px;
+        }
+
+        .content {
+            padding: 20px;
+        }
+
+        .summary {
+            margin-bottom: 16px;
+            color: #4b5563;
+            font-size: 14px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 12px 10px;
+            border-bottom: 1px solid #e5e7eb;
+            vertical-align: top;
+        }
+
+        th {
+            color: #4b5563;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            background: #f8fafc;
+        }
+
+        .alias {
+            font-weight: 700;
+            color: #1d4ed8;
+        }
+
+        .url {
+            word-break: break-all;
+            color: #111827;
+        }
+
+        .muted {
+            color: #6b7280;
+            font-size: 13px;
+        }
+
+        @media (max-width: 720px) {
+            body { padding: 10px; }
+            .header { flex-direction: column; gap: 10px; align-items: flex-start; }
+            table, thead, tbody, th, td, tr { display: block; }
+            thead { display: none; }
+            tr {
+                border-bottom: 1px solid #e5e7eb;
+                padding: 10px 0;
+            }
+            td {
+                border: 0;
+                padding: 6px 0;
+            }
+            td::before {
+                content: attr(data-label) ': ';
+                color: #6b7280;
+                font-weight: 600;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <div class="header">
+            <h1>Base de datos de enlaces</h1>
+            <a href="/" class="back">Volver</a>
+        </div>
+
+        <div class="content">
+            <p class="summary">Total de enlaces: <strong>{{ links|length }}</strong></p>
+
+            {% if links %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Alias</th>
+                        <th>URL original</th>
+                        <th>Clics</th>
+                        <th>Creado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for link in links %}
+                    <tr>
+                        <td data-label="Alias" class="alias">{{ link.alias }}</td>
+                        <td data-label="URL" class="url">{{ link.url }}</td>
+                        <td data-label="Clics">{{ link.clicks }}</td>
+                        <td data-label="Creado" class="muted">{{ link.created_at }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p class="muted">No hay registros todavía.</p>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>
